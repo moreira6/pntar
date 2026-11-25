@@ -1,0 +1,394 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ateliê de Natal</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;font-family:Arial,sans-serif;
+ background:#fff8ed;color:#49332b;
+}
+header{
+ background:linear-gradient(120deg,#b91c1c,#dc2626);
+ color:white;text-align:center;padding:24px 12px;
+ border-bottom:7px solid #15803d;
+}
+header h1{margin:0;font-size:clamp(25px,5vw,38px)}
+header p{margin:8px 0 0;font-size:16px}
+main{max-width:1100px;margin:auto;padding:20px}
+h2{text-align:center;color:#b91c1c}
+.gallery{
+ display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
+ gap:14px;margin:20px 0;
+}
+.drawing{
+ background:white;border:3px solid #ead7bd;border-radius:16px;
+ padding:10px;text-align:center;cursor:pointer;
+ font-size:17px;font-weight:bold;color:#75432f;
+ transition:.2s;
+}
+.drawing:hover,.drawing.active{
+ border-color:#dc2626;transform:translateY(-3px);
+ box-shadow:0 5px 15px #0002;
+}
+.drawing .emoji{font-size:48px;display:block;margin-bottom:5px}
+#game{display:none}
+.topbar{
+ display:flex;justify-content:space-between;align-items:center;
+ flex-wrap:wrap;gap:10px;margin:15px 0;
+}
+button{
+ border:0;border-radius:12px;padding:12px 18px;
+ font-weight:bold;font-size:15px;cursor:pointer;
+}
+.back{background:#e5e7eb;color:#333}
+.reset{background:#fee2e2;color:#b91c1c}
+.progressbox{
+ background:#fff;border-radius:14px;padding:12px;margin:12px 0;
+}
+.progress{height:14px;background:#eee;border-radius:20px;overflow:hidden}
+.progress div{
+ height:100%;width:0;background:#16a34a;transition:.3s;
+}
+#progressText{text-align:center;font-weight:bold;margin-top:7px}
+.workspace{
+ display:grid;grid-template-columns:1fr 210px;gap:20px;
+ align-items:start;
+}
+.canvas{
+ background:white;border:4px solid #ead7bd;border-radius:20px;
+ padding:10px;min-width:0;
+}
+svg{width:100%;height:auto;display:block;touch-action:manipulation}
+.region{
+ fill:#fffdf8;stroke:#49332b;stroke-width:3;
+ stroke-linejoin:round;cursor:pointer;
+ transition:fill .15s;
+}
+.region:hover{fill:#fef3c7}
+.region.done{stroke-width:3}
+.num{
+ fill:#333;font-size:18px;font-weight:bold;
+ text-anchor:middle;dominant-baseline:middle;
+ pointer-events:none;
+}
+.palette{
+ background:white;border-radius:18px;padding:15px;
+ border:3px solid #ead7bd;
+}
+.palette h3{text-align:center;margin:0 0 12px;color:#b91c1c}
+.color{
+ display:flex;align-items:center;gap:9px;
+ padding:8px;margin:5px 0;border-radius:10px;
+ border:2px solid transparent;cursor:pointer;
+ font-weight:bold;
+}
+.color.selected{border-color:#b91c1c;background:#fff1f2}
+.swatch{
+ width:30px;height:30px;border-radius:8px;
+ border:2px solid #555;flex-shrink:0;
+}
+#selectedText{text-align:center;font-size:14px;color:#666;margin-top:10px}
+#message{
+ display:none;text-align:center;background:#dcfce7;
+ color:#166534;padding:20px;border-radius:16px;
+ margin:15px 0;font-size:20px;font-weight:bold;
+}
+.instructions{text-align:center;color:#725c4c;margin:10px 0}
+@media(max-width:650px){
+ .workspace{grid-template-columns:1fr}
+ .palette{display:grid;grid-template-columns:repeat(2,1fr);gap:3px}
+ .palette h3,#selectedText{grid-column:1/-1}
+ .color{font-size:14px;padding:6px}
+}
+</style>
+</head>
+<body>
+
+<header>
+ <h1>🎄 Ateliê de Natal 🎨</h1>
+ <p>Escolha um desenho e pinte seguindo os números!</p>
+</header>
+
+<main>
+ <section id="selection">
+  <h2>✨ Escolha seu desenho natalino!</h2>
+  <div class="gallery">
+   <div class="drawing" onclick="startGame('santa',this)">
+    <span class="emoji">🎅</span>Papai Noel
+   </div>
+   <div class="drawing" onclick="startGame('tree',this)">
+    <span class="emoji">🎄</span>Árvore de Natal
+   </div>
+   <div class="drawing" onclick="startGame('reindeer',this)">
+    <span class="emoji">🦌</span>Rena
+   </div>
+   <div class="drawing" onclick="startGame('snowman',this)">
+    <span class="emoji">⛄</span>Boneco de neve
+   </div>
+  </div>
+ </section>
+
+ <section id="game">
+  <div class="topbar">
+   <button class="back" onclick="goBack()">← Escolher desenho</button>
+   <h2 id="gameTitle" style="margin:0"></h2>
+   <button class="reset" onclick="resetGame()">↻ Recomeçar</button>
+  </div>
+
+  <div class="progressbox">
+   <div class="progress"><div id="progressBar"></div></div>
+   <div id="progressText">0% pintado</div>
+  </div>
+
+  <p class="instructions">
+   Escolha uma cor e clique nas partes do desenho que tenham o mesmo número!
+  </p>
+
+  <div class="workspace">
+   <div class="canvas" id="canvas"></div>
+   <aside class="palette">
+    <h3>🌈 Cores</h3>
+    <div id="colors"></div>
+    <div id="selectedText">Escolha uma cor!</div>
+   </aside>
+  </div>
+
+  <div id="message">
+   🎉 PARABÉNS! 🎉<br>
+   Você terminou sua pintura de Natal! ❤️
+   <div style="margin-top:12px">
+    <button onclick="resetGame()" style="background:#16a34a;color:white">
+     Pintar novamente
+    </button>
+    <button onclick="goBack()" style="background:#b91c1c;color:white">
+     Outro desenho
+    </button>
+   </div>
+  </div>
+ </section>
+</main>
+
+<script>
+const colors = {
+ 1:{name:"Vermelho",hex:"#ef4444"},
+ 2:{name:"Verde",hex:"#22c55e"},
+ 3:{name:"Amarelo",hex:"#facc15"},
+ 4:{name:"Azul",hex:"#3b82f6"},
+ 5:{name:"Laranja",hex:"#f97316"},
+ 6:{name:"Roxo",hex:"#a855f7"},
+ 7:{name:"Rosa",hex:"#ec4899"},
+ 8:{name:"Marrom",hex:"#92400e"},
+ 9:{name:"Cinza",hex:"#9ca3af"},
+ 10:{name:"Branco",hex:"#ffffff"}
+};
+
+const drawings = {
+ santa:{
+  title:"🎅 Papai Noel",
+  parts:[
+   [1,'<path d="M145 112 Q200 10 255 112 L235 130 Q200 90 165 130Z"/>'],
+   [3,'<circle cx="200" cy="55" r="19"/>'],
+   [10,'<path d="M145 112 Q200 92 255 112 L245 145 Q200 165 155 145Z"/>'],
+   [10,'<ellipse cx="200" cy="150" rx="68" ry="65"/>'],
+   [8,'<ellipse cx="200" cy="151" rx="34" ry="25"/>'],
+   [10,'<path d="M135 176 Q200 200 265 176 Q260 215 200 220 Q140 215 135 176Z"/>'],
+   [1,'<path d="M105 235 Q200 210 295 235 L315 360 Q200 390 85 360Z"/>'],
+   [10,'<path d="M105 235 Q75 250 65 305 L95 320 L130 260Z"/>'],
+   [10,'<path d="M295 235 Q325 250 335 305 L305 320 L270 260Z"/>'],
+   [3,'<rect x="85" y="350" width="230" height="22" rx="5"/>'],
+   [8,'<rect x="90" y="372" width="75" height="55" rx="12"/>'],
+   [8,'<rect x="235" y="372" width="75" height="55" rx="12"/>'],
+   [9,'<circle cx="180" cy="165" r="5"/>'],
+   [9,'<circle cx="220" cy="165" r="5"/>'],
+   [3,'<circle cx="200" cy="225" r="10"/>'],
+   [3,'<circle cx="200" cy="270" r="10"/>'],
+   [3,'<circle cx="200" cy="315" r="10"/>']
+  ]
+ },
+ tree:{
+  title:"🎄 Árvore de Natal",
+  parts:[
+   [2,'<path d="M200 35 L100 170 L145 170 L75 260 L145 260 L65 350 L335 350 L255 260 L325 260 L255 170 L300 170Z"/>'],
+   [3,'<polygon points="200,10 210,35 238,38 217,56 222,83 200,69 178,83 183,56 162,38 190,35"/>'],
+   [8,'<rect x="165" y="350" width="70" height="75" rx="5"/>'],
+   [1,'<circle cx="145" cy="180" r="18"/>'],
+   [4,'<circle cx="235" cy="190" r="18"/>'],
+   [5,'<circle cx="190" cy="240" r="18"/>'],
+   [6,'<circle cx="275" cy="280" r="18"/>'],
+   [7,'<circle cx="120" cy="290" r="18"/>'],
+   [3,'<circle cx="200" cy="310" r="18"/>'],
+   [1,'<circle cx="200" cy="145" r="15"/>'],
+   [4,'<circle cx="160" cy="310" r="13"/>'],
+   [5,'<circle cx="245" cy="235" r="13"/>'],
+   [9,'<path d="M55 390 Q200 370 345 390 L345 410 L55 410Z"/>'],
+   [10,'<circle cx="65" cy="80" r="13"/>'],
+   [10,'<circle cx="330" cy="100" r="12"/>']
+  ]
+ },
+ reindeer:{
+  title:"🦌 Rena do Natal",
+  parts:[
+   [8,'<ellipse cx="200" cy="265" rx="95" ry="105"/>'],
+   [8,'<ellipse cx="200" cy="125" rx="65" ry="75"/>'],
+   [8,'<path d="M145 85 Q115 55 115 20 L140 55 L150 15 L165 75Z"/>'],
+   [8,'<path d="M255 85 Q285 55 285 20 L260 55 L250 15 L235 75Z"/>'],
+   [5,'<ellipse cx="200" cy="165" rx="23" ry="20"/>'],
+   [10,'<ellipse cx="170" cy="120" rx="13" ry="17"/>'],
+   [10,'<ellipse cx="230" cy="120" rx="13" ry="17"/>'],
+   [9,'<circle cx="170" cy="120" r="5"/>'],
+   [9,'<circle cx="230" cy="120" r="5"/>'],
+   [8,'<path d="M170 190 Q200 220 230 190 Q225 245 200 245 Q175 245 170 190Z"/>'],
+   [1,'<path d="M110 250 L75 290 L110 320 L135 285Z"/>'],
+   [1,'<path d="M290 250 L325 290 L290 320 L265 285Z"/>'],
+   [8,'<rect x="135" y="345" width="35" height="65" rx="12"/>'],
+   [8,'<rect x="230" y="345" width="35" height="65" rx="12"/>'],
+   [3,'<rect x="125" y="265" width="150" height="20" rx="8"/>'],
+   [7,'<circle cx="200" cy="275" r="12"/>']
+  ]
+ },
+ snowman:{
+  title:"⛄ Boneco de neve",
+  parts:[
+   [10,'<circle cx="200" cy="115" r="67"/>'],
+   [10,'<circle cx="200" cy="270" r="105"/>'],
+   [8,'<path d="M135 55 L265 55 L245 90 L155 90Z"/>'],
+   [1,'<rect x="145" y="35" width="110" height="23" rx="5"/>'],
+   [9,'<circle cx="178" cy="105" r="6"/>'],
+   [9,'<circle cx="222" cy="105" r="6"/>'],
+   [5,'<path d="M195 120 L245 133 L195 143Z"/>'],
+   [1,'<path d="M165 155 Q200 180 235 155 L230 173 Q200 200 170 173Z"/>'],
+   [4,'<path d="M140 200 Q200 230 260 200 L270 230 Q200 260 130 230Z"/>'],
+   [1,'<rect x="180" y="260" width="40" height="12" rx="5"/>'],
+   [1,'<rect x="180" y="300" width="40" height="12" rx="5"/>'],
+   [1,'<rect x="180" y="340" width="40" height="12" rx="5"/>'],
+   [8,'<path d="M95 260 L30 225 L40 210 L110 245Z"/>'],
+   [8,'<path d="M305 260 L370 225 L360 210 L290 245Z"/>'],
+   [3,'<circle cx="200" cy="270" r="9"/>'],
+   [3,'<circle cx="200" cy="325" r="9"/>']
+  ]
+ }
+};
+
+let current=null;
+let selected=1;
+let painted={};
+
+function startGame(id,el){
+ current=id;
+ painted={};
+ selected=1;
+ document.getElementById('selection').style.display='none';
+ document.getElementById('game').style.display='block';
+ document.getElementById('gameTitle').textContent=drawings[id].title;
+ document.querySelectorAll('.drawing').forEach(x=>x.classList.remove('active'));
+ el.classList.add('active');
+ buildPalette();
+ buildDrawing();
+ updateProgress();
+}
+
+function buildPalette(){
+ const container=document.getElementById('colors');
+ container.innerHTML='';
+ Object.entries(colors).forEach(([n,c])=>{
+  const div=document.createElement('div');
+  div.className='color'+(Number(n)===selected?' selected':'');
+  div.innerHTML=`<span class="swatch" style="background:${c.hex}"></span>
+  <span>${n} - ${c.name}</span>`;
+  div.onclick=()=>chooseColor(Number(n));
+  container.appendChild(div);
+ });
+ updateSelectedText();
+}
+
+function chooseColor(n){
+ selected=n;
+ buildPalette();
+}
+
+function updateSelectedText(){
+ document.getElementById('selectedText').textContent=
+ 'Cor selecionada: '+selected+' - '+colors[selected].name;
+}
+
+function buildDrawing(){
+ let svg=`<svg viewBox="0 0 400 450" role="img" aria-label="${drawings[current].title}">
+ <rect x="5" y="5" width="390" height="440" rx="18" fill="#fffdf8" stroke="#ead7bd" stroke-width="3"/>
+ <g>`;
+ drawings[current].parts.forEach((part,i)=>{
+  svg+=`<g class="piece" data-index="${i}">
+   <g class="region" data-num="${part[0]}" data-index="${i}">${part[1]}</g>
+   <text class="num" id="num${i}" x="${getLabel(part[1]).x}" y="${getLabel(part[1]).y}">${part[0]}</text>
+  </g>`;
+ });
+ svg+='</g></svg>';
+ document.getElementById('canvas').innerHTML=svg;
+
+ document.querySelectorAll('.region').forEach(el=>{
+  el.addEventListener('click',()=>{
+   const n=Number(el.dataset.num);
+   const i=Number(el.dataset.index);
+   if(n===selected){
+    if(!painted[i]){
+     painted[i]=true;
+     el.style.fill=colors[n].hex;
+     el.classList.add('done');
+     document.getElementById('num'+i).style.display='none';
+     updateProgress();
+    }
+   }else{
+    el.animate([
+     {opacity:1},{opacity:.35},{opacity:1}
+    ],{duration:250});
+   }
+  });
+ });
+}
+
+function getLabel(shape){
+ const match=shape.match(/(?:cx|x)="([\d.]+)".*?(?:cy|y)="([\d.]+)"/);
+ if(match)return {x:match[1],y:match[2]};
+ const m=shape.match(/points="([\d., ]+)"/);
+ if(m){
+  const pts=m[1].trim().split(' ');
+  const xs=pts.map(p=>+p.split(',')[0]);
+  const ys=pts.map(p=>+p.split(',')[1]);
+  return {x:xs.reduce((a,b)=>a+b,0)/xs.length,y:ys.reduce((a,b)=>a+b,0)/ys.length};
+ }
+ return {x:200,y:200};
+}
+
+function updateProgress(){
+ const total=drawings[current].parts.length;
+ const count=Object.keys(painted).length;
+ const percent=Math.round(count/total*100);
+ document.getElementById('progressBar').style.width=percent+'%';
+ document.getElementById('progressText').textContent=
+ `${percent}% pintado (${count} de ${total} partes)`;
+ if(count===total){
+  document.getElementById('message').style.display='block';
+  document.getElementById('message').scrollIntoView({behavior:'smooth',block:'center'});
+ }else{
+  document.getElementById('message').style.display='none';
+ }
+}
+
+function resetGame(){
+ painted={};
+ buildDrawing();
+ updateProgress();
+ document.getElementById('message').style.display='none';
+}
+
+function goBack(){
+ document.getElementById('game').style.display='none';
+ document.getElementById('selection').style.display='block';
+ document.getElementById('message').style.display='none';
+}
+</script>
+</body>
+</html>
