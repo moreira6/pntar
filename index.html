@@ -3,391 +3,247 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Ateliê de Natal</title>
 <style>
 *{box-sizing:border-box}
-body{
- margin:0;font-family:Arial,sans-serif;
- background:#fff8ed;color:#49332b;
-}
-header{
- background:linear-gradient(120deg,#b91c1c,#dc2626);
- color:white;text-align:center;padding:24px 12px;
- border-bottom:7px solid #15803d;
-}
-header h1{margin:0;font-size:clamp(25px,5vw,38px)}
-header p{margin:8px 0 0;font-size:16px}
-main{max-width:1100px;margin:auto;padding:20px}
+body{margin:0;background:#fff8ed;color:#49352b;font-family:Arial,sans-serif}
+header{background:#b91c1c;color:white;text-align:center;padding:22px;border-bottom:7px solid #15803d}
+header h1{margin:0;font-size:32px}
+header p{margin:8px 0 0}
+main{max-width:1150px;margin:auto;padding:20px}
 h2{text-align:center;color:#b91c1c}
-.gallery{
- display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));
- gap:14px;margin:20px 0;
-}
-.drawing{
- background:white;border:3px solid #ead7bd;border-radius:16px;
- padding:10px;text-align:center;cursor:pointer;
- font-size:17px;font-weight:bold;color:#75432f;
- transition:.2s;
-}
-.drawing:hover,.drawing.active{
- border-color:#dc2626;transform:translateY(-3px);
- box-shadow:0 5px 15px #0002;
-}
-.drawing .emoji{font-size:48px;display:block;margin-bottom:5px}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:15px}
+.card{background:white;border:3px solid #ead7bd;border-radius:18px;padding:12px;text-align:center;cursor:pointer;font-size:18px;font-weight:bold}
+.card:hover{border-color:#dc2626;transform:translateY(-3px)}
+.preview{font-size:65px;display:block;margin-bottom:8px}
 #game{display:none}
-.topbar{
- display:flex;justify-content:space-between;align-items:center;
- flex-wrap:wrap;gap:10px;margin:15px 0;
-}
-button{
- border:0;border-radius:12px;padding:12px 18px;
- font-weight:bold;font-size:15px;cursor:pointer;
-}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}
+button{border:0;border-radius:12px;padding:12px 17px;font-size:15px;font-weight:bold;cursor:pointer}
 .back{background:#e5e7eb;color:#333}
 .reset{background:#fee2e2;color:#b91c1c}
-.progressbox{
- background:#fff;border-radius:14px;padding:12px;margin:12px 0;
-}
-.progress{height:14px;background:#eee;border-radius:20px;overflow:hidden}
-.progress div{
- height:100%;width:0;background:#16a34a;transition:.3s;
-}
-#progressText{text-align:center;font-weight:bold;margin-top:7px}
-.workspace{
- display:grid;grid-template-columns:1fr 210px;gap:20px;
- align-items:start;
-}
-.canvas{
- background:white;border:4px solid #ead7bd;border-radius:20px;
- padding:10px;min-width:0;
-}
-svg{width:100%;height:auto;display:block;touch-action:manipulation}
-.region{
- fill:#fffdf8;stroke:#49332b;stroke-width:3;
- stroke-linejoin:round;cursor:pointer;
- transition:fill .15s;
-}
-.region:hover{fill:#fef3c7}
-.region.done{stroke-width:3}
-.num{
- fill:#333;font-size:18px;font-weight:bold;
- text-anchor:middle;dominant-baseline:middle;
- pointer-events:none;
-}
-.palette{
- background:white;border-radius:18px;padding:15px;
- border:3px solid #ead7bd;
-}
-.palette h3{text-align:center;margin:0 0 12px;color:#b91c1c}
-.color{
- display:flex;align-items:center;gap:9px;
- padding:8px;margin:5px 0;border-radius:10px;
- border:2px solid transparent;cursor:pointer;
- font-weight:bold;
-}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:18px;align-items:start}
+.paper{background:white;border:3px solid #ead7bd;border-radius:18px;padding:10px;box-shadow:0 4px 12px #0000000c}
+svg{width:100%;height:auto;display:block}
+.part{fill:#fff;stroke:#49352b;stroke-width:4;stroke-linejoin:round;stroke-linecap:round;cursor:pointer;transition:fill .15s}
+.part:hover{fill:#fff1c5}
+.part.painted{cursor:default}
+.number{font-family:Arial,sans-serif;font-size:22px;font-weight:bold;fill:#34271f;text-anchor:middle;dominant-baseline:middle;pointer-events:none}
+.palette{background:white;border:3px solid #ead7bd;border-radius:18px;padding:13px}
+.palette h3{text-align:center;color:#b91c1c;margin:3px 0 12px}
+.colors{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+.color{display:flex;align-items:center;gap:7px;padding:7px 4px;border:2px solid transparent;border-radius:10px;cursor:pointer;font-weight:bold;font-size:14px}
 .color.selected{border-color:#b91c1c;background:#fff1f2}
-.swatch{
- width:30px;height:30px;border-radius:8px;
- border:2px solid #555;flex-shrink:0;
-}
-#selectedText{text-align:center;font-size:14px;color:#666;margin-top:10px}
-#message{
- display:none;text-align:center;background:#dcfce7;
- color:#166534;padding:20px;border-radius:16px;
- margin:15px 0;font-size:20px;font-weight:bold;
-}
-.instructions{text-align:center;color:#725c4c;margin:10px 0}
-@media(max-width:650px){
- .workspace{grid-template-columns:1fr}
- .palette{display:grid;grid-template-columns:repeat(2,1fr);gap:3px}
- .palette h3,#selectedText{grid-column:1/-1}
- .color{font-size:14px;padding:6px}
-}
+.swatch{width:25px;height:25px;border:1px solid #777;border-radius:7px;flex-shrink:0}
+#chosen{text-align:center;font-size:13px;margin:12px 0 3px;color:#725c4c}
+.progressbox{background:white;border-radius:12px;padding:12px;margin:15px 0}
+.track{height:14px;background:#eee;border-radius:20px;overflow:hidden}
+#bar{height:100%;width:0;background:#16a34a;transition:.3s}
+#percent{text-align:center;font-weight:bold;margin-top:7px}
+.instructions{text-align:center;color:#725c4c}
+#finish{display:none;text-align:center;padding:22px;margin-top:15px;background:#dcfce7;border-radius:16px;color:#166534;font-size:20px;font-weight:bold}
+@media(max-width:650px){.layout{grid-template-columns:1fr}.colors{grid-template-columns:repeat(2,1fr)}header h1{font-size:26px}}
 </style>
 </head>
 <body>
-
 <header>
- <h1>🎄 Ateliê de Natal 🎨</h1>
- <p>Escolha um desenho e pinte seguindo os números!</p>
+<h1>🎄 Ateliê de Natal 🎨</h1>
+<p>Escolha as cores e deixe o Natal mais bonito!</p>
 </header>
-
 <main>
- <section id="selection">
-  <h2>✨ Escolha seu desenho natalino!</h2>
-  <div class="gallery">
-   <div class="drawing" onclick="startGame('santa',this)">
-    <span class="emoji">🎅</span>Papai Noel
-   </div>
-   <div class="drawing" onclick="startGame('tree',this)">
-    <span class="emoji">🎄</span>Árvore de Natal
-   </div>
-   <div class="drawing" onclick="startGame('reindeer',this)">
-    <span class="emoji">🦌</span>Rena
-   </div>
-   <div class="drawing" onclick="startGame('snowman',this)">
-    <span class="emoji">⛄</span>Boneco de neve
-   </div>
-  </div>
- </section>
-
- <section id="game">
-  <div class="topbar">
-   <button class="back" onclick="goBack()">← Escolher desenho</button>
-   <h2 id="gameTitle" style="margin:0"></h2>
-   <button class="reset" onclick="resetGame()">↻ Recomeçar</button>
-  </div>
-
-  <div class="progressbox">
-   <div class="progress"><div id="progressBar"></div></div>
-   <div id="progressText">0% pintado</div>
-  </div>
-
-  <p class="instructions">
-   Escolha uma cor e clique nas partes do desenho que tenham o mesmo número!
-  </p>
-
-  <div class="workspace">
-   <div class="canvas" id="canvas"></div>
-   <aside class="palette">
-    <h3>🌈 Cores</h3>
-    <div id="colors"></div>
-    <div id="selectedText">Escolha uma cor!</div>
-   </aside>
-  </div>
-
-  <div id="message">
-   🎉 PARABÉNS! 🎉<br>
-   Você terminou sua pintura de Natal! ❤️
-   <div style="margin-top:12px">
-    <button onclick="resetGame()" style="background:#16a34a;color:white">
-     Pintar novamente
-    </button>
-    <button onclick="goBack()" style="background:#b91c1c;color:white">
-     Outro desenho
-    </button>
-   </div>
-  </div>
- </section>
+<section id="home">
+<h2>✨ Escolha uma pintura</h2>
+<div class="gallery">
+<div class="card" onclick="start('santa')"><span class="preview">🎅</span>Papai Noel</div>
+<div class="card" onclick="start('tree')"><span class="preview">🎄</span>Árvore de Natal</div>
+<div class="card" onclick="start('reindeer')"><span class="preview">🦌</span>Rena</div>
+<div class="card" onclick="start('snowman')"><span class="preview">⛄</span>Boneco de neve</div>
+</div>
+</section>
+<section id="game">
+<div class="toolbar">
+<button class="back" onclick="back()">← Desenhos</button>
+<h2 id="title" style="margin:0"></h2>
+<button class="reset" onclick="reset()">↻ Recomeçar</button>
+</div>
+<div class="progressbox">
+<div class="track"><div id="bar"></div></div>
+<div id="percent">0% concluído</div>
+</div>
+<p class="instructions">Escolha um número na paleta e pinte as regiões com o mesmo número.</p>
+<div class="layout">
+<div class="paper" id="picture"></div>
+<aside class="palette">
+<h3>🌈 Escolha uma cor</h3>
+<div class="colors" id="colors"></div>
+<div id="chosen">Selecione uma cor</div>
+</aside>
+</div>
+<div id="finish">
+🎉 PARABÉNS! 🎉<br>
+Sua pintura ficou linda!<br>
+<button onclick="back()" style="background:#15803d;color:white;margin-top:14px">Escolher outro desenho</button>
+</div>
+</section>
 </main>
-
 <script>
-const colors = {
- 1:{name:"Vermelho",hex:"#ef4444"},
- 2:{name:"Verde",hex:"#22c55e"},
- 3:{name:"Amarelo",hex:"#facc15"},
- 4:{name:"Azul",hex:"#3b82f6"},
- 5:{name:"Laranja",hex:"#f97316"},
- 6:{name:"Roxo",hex:"#a855f7"},
- 7:{name:"Rosa",hex:"#ec4899"},
- 8:{name:"Marrom",hex:"#92400e"},
- 9:{name:"Cinza",hex:"#9ca3af"},
- 10:{name:"Branco",hex:"#ffffff"}
+const palette=[
+['1','Vermelho','#ef4444'],['2','Verde','#22c55e'],
+['3','Amarelo','#facc15'],['4','Azul','#3b82f6'],
+['5','Laranja','#f97316'],['6','Roxo','#a855f7'],
+['7','Rosa','#ec4899'],['8','Marrom','#92400e'],
+['9','Cinza','#9ca3af'],['10','Branco','#ffffff']
+];
+
+// Cada região possui seu próprio desenho e posição do número.
+const art={
+santa:{
+title:'🎅 Papai Noel',
+parts:[
+[1,'M135 116 Q145 54 235 37 Q282 28 310 75 L275 123 Q210 91 135 116Z',220,79],
+[9,'M135 116 Q115 109 116 91 Q120 67 145 76 Q163 84 151 113Z',135,94],
+[10,'M145 117 Q200 91 275 123 L267 159 Q200 180 143 151Z',205,139],
+[10,'M145 151 Q200 180 267 159 Q282 194 257 213 Q200 250 153 213 Q127 190 145 151Z',200,190],
+[8,'M158 153 Q200 174 252 153 L239 183 Q200 207 169 181Z',200,180],
+[9,'M166 144 Q180 137 187 148 Q180 160 166 155Z',177,149],
+[9,'M213 148 Q225 137 238 144 L238 155 Q224 160 213 148Z',225,149],
+[5,'M187 161 Q200 154 213 161 L207 177 L193 177Z',200,167],
+[10,'M150 207 Q200 232 250 207 L269 244 Q200 270 131 244Z',200,238],
+[1,'M130 244 Q200 270 270 244 L303 390 Q200 420 97 390 L130 244Z',200,320],
+[10,'M97 250 Q70 263 59 329 L99 342 L139 267Z',96,298],
+[10,'M303 250 Q330 263 341 329 L301 342 L261 267Z',304,298],
+[3,'M100 374 Q200 396 300 374 L298 401 Q200 426 102 401Z',200,397],
+[8,'M112 401 L193 405 L190 472 L105 472Z',150,443],
+[8,'M207 405 L288 401 L295 472 L210 472Z',250,443],
+[3,'M187 270 L213 270 L213 295 L187 295Z',200,282],
+[3,'M187 321 L213 321 L213 346 L187 346Z',200,333]
+]},
+tree:{
+title:'🎄 Árvore de Natal',
+parts:[
+[3,'M250 32 L278 79 L306 91 L281 107 L326 153 L290 159 L349 220 L298 222 L370 303 L130 303 L202 222 L151 220 L210 159 L174 153 L219 107 L194 91 L222 79Z',250,74],
+[2,'M219 107 L281 107 L326 153 L290 159 L349 220 L298 222 L370 303 L130 303 L202 222 L151 220 L210 159 L174 153Z',250,190],
+[8,'M216 303 L284 303 L284 400 L216 400Z',250,350],
+[1,'M191 147 Q210 128 228 147 Q228 166 210 174 Q191 166 191 147Z',210,151],
+[4,'M273 183 Q292 164 310 183 Q310 202 292 210 Q273 202 273 183Z',292,188],
+[5,'M166 231 Q185 212 203 231 Q203 250 185 258 Q166 250 166 231Z',185,236],
+[6,'M246 255 Q265 236 283 255 Q283 274 265 282 Q246 274 246 255Z',265,260],
+[7,'M211 194 Q230 175 248 194 Q248 213 230 221 Q211 213 211 194Z',230,199],
+[3,'M190 271 Q207 252 225 271 Q225 290 207 298 Q190 290 190 271Z',207,276],
+[4,'M302 254 Q318 240 332 254 Q332 270 318 276 Q302 270 302 254Z',318,258],
+[1,'M148 278 Q163 264 178 278 Q178 294 163 300 Q148 294 148 278Z',163,282],
+[5,'M230 118 Q246 104 260 118 Q260 134 246 140 Q230 134 230 118Z',246,123],
+[9,'M80 402 Q250 385 420 402 L420 420 L80 420Z',250,408],
+[10,'M78 83 Q92 69 106 83 Q106 98 92 105 Q78 98 78 83Z',92,87],
+[10,'M380 100 Q394 86 408 100 Q408 115 394 122 Q380 115 380 100Z',394,104]
+]},
+reindeer:{
+title:'🦌 Rena de Natal',
+parts:[
+[8,'M157 113 Q130 77 143 35 Q168 65 176 88 L190 107Z',155,69],
+[8,'M210 107 Q225 65 258 35 Q265 81 237 119Z',242,73],
+[5,'M165 38 Q150 20 137 32 Q142 51 162 54Z',150,40],
+[5,'M258 38 Q276 20 290 32 Q282 53 260 55Z',277,40],
+[8,'M145 126 Q200 92 255 126 L269 216 Q200 251 131 216Z',200,183],
+[8,'M147 205 Q200 235 253 205 L274 322 Q200 358 126 322Z',200,280],
+[10,'M153 127 Q200 104 247 127 L253 181 Q200 204 147 181Z',200,155],
+[9,'M168 151 Q179 143 188 151 L185 163 L170 163Z',178,155],
+[9,'M212 151 Q221 143 232 151 L230 163 L215 163Z',222,155],
+[5,'M180 177 Q200 165 220 177 L212 199 L188 199Z',200,184],
+[1,'M133 230 L85 261 L103 287 L151 264Z',117,259],
+[1,'M267 230 L315 261 L297 287 L249 264Z',283,259],
+[8,'M145 322 L180 329 L172 430 L135 430Z',157,382],
+[8,'M220 329 L255 322 L265 430 L228 430Z',245,382],
+[1,'M130 430 L176 430 L181 449 L126 449Z',153,440],
+[1,'M225 430 L270 430 L276 449 L221 449Z',248,440],
+[3,'M157 218 Q200 238 243 218 L238 243 Q200 263 162 243Z',200,239],
+[7,'M187 275 Q200 262 213 275 L208 290 L192 290Z',200,278]
+]},
+snowman:{
+title:'⛄ Boneco de neve',
+parts:[
+[1,'M155 105 L295 105 L280 130 L170 130Z',225,117],
+[8,'M180 55 L270 55 L280 105 L170 105Z',225,81],
+[10,'M145 174 Q145 120 225 120 Q305 120 305 174 L294 226 Q225 253 156 226Z',225,184],
+[10,'M112 330 Q112 228 225 228 Q338 228 338 330 Q338 442 225 442 Q112 442 112 330Z',225,338],
+[9,'M190 171 Q199 163 207 171 L204 181 L193 181Z',199,174],
+[9,'M243 171 Q251 163 260 171 L257 181 L246 181Z',251,174],
+[5,'M216 184 L272 197 L216 209Z',238,195],
+[1,'M176 217 Q225 238 274 217 L266 242 Q225 263 184 242Z',225,238],
+[4,'M143 267 Q225 298 307 267 L316 292 Q225 329 134 292Z',225,297],
+[1,'M203 320 Q225 310 247 320 L243 339 L207 339Z',225,327],
+[1,'M203 365 Q225 355 247 365 L243 384 L207 384Z',225,372],
+[1,'M203 408 Q225 398 247 408 L243 427 L207 427Z',225,415],
+[8,'M119 266 L60 234 L70 218 L139 252Z',94,244],
+[8,'M331 266 L390 234 L380 218 L311 252Z',356,244],
+[3,'M190 130 Q225 110 260 130 L252 145 Q225 157 198 145Z',225,138],
+[7,'M192 289 Q225 278 258 289 L250 306 Q225 316 200 306Z',225,297]
+]}
 };
 
-const drawings = {
- santa:{
-  title:"🎅 Papai Noel",
-  parts:[
-   [1,'<path d="M145 112 Q200 10 255 112 L235 130 Q200 90 165 130Z"/>'],
-   [3,'<circle cx="200" cy="55" r="19"/>'],
-   [10,'<path d="M145 112 Q200 92 255 112 L245 145 Q200 165 155 145Z"/>'],
-   [10,'<ellipse cx="200" cy="150" rx="68" ry="65"/>'],
-   [8,'<ellipse cx="200" cy="151" rx="34" ry="25"/>'],
-   [10,'<path d="M135 176 Q200 200 265 176 Q260 215 200 220 Q140 215 135 176Z"/>'],
-   [1,'<path d="M105 235 Q200 210 295 235 L315 360 Q200 390 85 360Z"/>'],
-   [10,'<path d="M105 235 Q75 250 65 305 L95 320 L130 260Z"/>'],
-   [10,'<path d="M295 235 Q325 250 335 305 L305 320 L270 260Z"/>'],
-   [3,'<rect x="85" y="350" width="230" height="22" rx="5"/>'],
-   [8,'<rect x="90" y="372" width="75" height="55" rx="12"/>'],
-   [8,'<rect x="235" y="372" width="75" height="55" rx="12"/>'],
-   [9,'<circle cx="180" cy="165" r="5"/>'],
-   [9,'<circle cx="220" cy="165" r="5"/>'],
-   [3,'<circle cx="200" cy="225" r="10"/>'],
-   [3,'<circle cx="200" cy="270" r="10"/>'],
-   [3,'<circle cx="200" cy="315" r="10"/>']
-  ]
- },
- tree:{
-  title:"🎄 Árvore de Natal",
-  parts:[
-   [2,'<path d="M200 35 L100 170 L145 170 L75 260 L145 260 L65 350 L335 350 L255 260 L325 260 L255 170 L300 170Z"/>'],
-   [3,'<polygon points="200,10 210,35 238,38 217,56 222,83 200,69 178,83 183,56 162,38 190,35"/>'],
-   [8,'<rect x="165" y="350" width="70" height="75" rx="5"/>'],
-   [1,'<circle cx="145" cy="180" r="18"/>'],
-   [4,'<circle cx="235" cy="190" r="18"/>'],
-   [5,'<circle cx="190" cy="240" r="18"/>'],
-   [6,'<circle cx="275" cy="280" r="18"/>'],
-   [7,'<circle cx="120" cy="290" r="18"/>'],
-   [3,'<circle cx="200" cy="310" r="18"/>'],
-   [1,'<circle cx="200" cy="145" r="15"/>'],
-   [4,'<circle cx="160" cy="310" r="13"/>'],
-   [5,'<circle cx="245" cy="235" r="13"/>'],
-   [9,'<path d="M55 390 Q200 370 345 390 L345 410 L55 410Z"/>'],
-   [10,'<circle cx="65" cy="80" r="13"/>'],
-   [10,'<circle cx="330" cy="100" r="12"/>']
-  ]
- },
- reindeer:{
-  title:"🦌 Rena do Natal",
-  parts:[
-   [8,'<ellipse cx="200" cy="265" rx="95" ry="105"/>'],
-   [8,'<ellipse cx="200" cy="125" rx="65" ry="75"/>'],
-   [8,'<path d="M145 85 Q115 55 115 20 L140 55 L150 15 L165 75Z"/>'],
-   [8,'<path d="M255 85 Q285 55 285 20 L260 55 L250 15 L235 75Z"/>'],
-   [5,'<ellipse cx="200" cy="165" rx="23" ry="20"/>'],
-   [10,'<ellipse cx="170" cy="120" rx="13" ry="17"/>'],
-   [10,'<ellipse cx="230" cy="120" rx="13" ry="17"/>'],
-   [9,'<circle cx="170" cy="120" r="5"/>'],
-   [9,'<circle cx="230" cy="120" r="5"/>'],
-   [8,'<path d="M170 190 Q200 220 230 190 Q225 245 200 245 Q175 245 170 190Z"/>'],
-   [1,'<path d="M110 250 L75 290 L110 320 L135 285Z"/>'],
-   [1,'<path d="M290 250 L325 290 L290 320 L265 285Z"/>'],
-   [8,'<rect x="135" y="345" width="35" height="65" rx="12"/>'],
-   [8,'<rect x="230" y="345" width="35" height="65" rx="12"/>'],
-   [3,'<rect x="125" y="265" width="150" height="20" rx="8"/>'],
-   [7,'<circle cx="200" cy="275" r="12"/>']
-  ]
- },
- snowman:{
-  title:"⛄ Boneco de neve",
-  parts:[
-   [10,'<circle cx="200" cy="115" r="67"/>'],
-   [10,'<circle cx="200" cy="270" r="105"/>'],
-   [8,'<path d="M135 55 L265 55 L245 90 L155 90Z"/>'],
-   [1,'<rect x="145" y="35" width="110" height="23" rx="5"/>'],
-   [9,'<circle cx="178" cy="105" r="6"/>'],
-   [9,'<circle cx="222" cy="105" r="6"/>'],
-   [5,'<path d="M195 120 L245 133 L195 143Z"/>'],
-   [1,'<path d="M165 155 Q200 180 235 155 L230 173 Q200 200 170 173Z"/>'],
-   [4,'<path d="M140 200 Q200 230 260 200 L270 230 Q200 260 130 230Z"/>'],
-   [1,'<rect x="180" y="260" width="40" height="12" rx="5"/>'],
-   [1,'<rect x="180" y="300" width="40" height="12" rx="5"/>'],
-   [1,'<rect x="180" y="340" width="40" height="12" rx="5"/>'],
-   [8,'<path d="M95 260 L30 225 L40 210 L110 245Z"/>'],
-   [8,'<path d="M305 260 L370 225 L360 210 L290 245Z"/>'],
-   [3,'<circle cx="200" cy="270" r="9"/>'],
-   [3,'<circle cx="200" cy="325" r="9"/>']
-  ]
- }
-};
+let current='',selected=1,done={};
 
-let current=null;
-let selected=1;
-let painted={};
-
-function startGame(id,el){
- current=id;
- painted={};
- selected=1;
- document.getElementById('selection').style.display='none';
+function start(id){
+ current=id;selected=1;done={};
+ document.getElementById('home').style.display='none';
  document.getElementById('game').style.display='block';
- document.getElementById('gameTitle').textContent=drawings[id].title;
- document.querySelectorAll('.drawing').forEach(x=>x.classList.remove('active'));
- el.classList.add('active');
- buildPalette();
- buildDrawing();
- updateProgress();
+ document.getElementById('title').textContent=art[id].title;
+ document.getElementById('finish').style.display='none';
+ renderPalette();renderPicture();progress();
+ window.scrollTo({top:0,behavior:'smooth'});
 }
-
-function buildPalette(){
- const container=document.getElementById('colors');
- container.innerHTML='';
- Object.entries(colors).forEach(([n,c])=>{
-  const div=document.createElement('div');
-  div.className='color'+(Number(n)===selected?' selected':'');
-  div.innerHTML=`<span class="swatch" style="background:${c.hex}"></span>
-  <span>${n} - ${c.name}</span>`;
-  div.onclick=()=>chooseColor(Number(n));
-  container.appendChild(div);
+function renderPalette(){
+ document.getElementById('colors').innerHTML=palette.map(c=>
+ `<div class="color ${selected==c[0]?'selected':''}" onclick="choose(${c[0]})">
+ <span class="swatch" style="background:${c[2]}"></span>${c[0]} - ${c[1]}</div>`
+ ).join('');
+ let c=palette[selected-1];
+ document.getElementById('chosen').textContent='Selecionado: '+c[0]+' - '+c[1];
+}
+function choose(n){selected=n;renderPalette()}
+function renderPicture(){
+ let svg='<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="494" height="494" rx="15" fill="#fffdf8" stroke="#ead7bd" stroke-width="3"/>';
+ art[current].parts.forEach((p,i)=>{
+ svg+=`<g>
+ <path class="part" id="p${i}" d="${p[1]}" onclick="paint(${i})"/>
+ <text class="number" id="n${i}" x="${p[2]}" y="${p[3]}">${p[0]}</text>
+ </g>`;
  });
- updateSelectedText();
+ svg+='</svg>';
+ document.getElementById('picture').innerHTML=svg;
 }
-
-function chooseColor(n){
- selected=n;
- buildPalette();
-}
-
-function updateSelectedText(){
- document.getElementById('selectedText').textContent=
- 'Cor selecionada: '+selected+' - '+colors[selected].name;
-}
-
-function buildDrawing(){
- let svg=`<svg viewBox="0 0 400 450" role="img" aria-label="${drawings[current].title}">
- <rect x="5" y="5" width="390" height="440" rx="18" fill="#fffdf8" stroke="#ead7bd" stroke-width="3"/>
- <g>`;
- drawings[current].parts.forEach((part,i)=>{
-  svg+=`<g class="piece" data-index="${i}">
-   <g class="region" data-num="${part[0]}" data-index="${i}">${part[1]}</g>
-   <text class="num" id="num${i}" x="${getLabel(part[1]).x}" y="${getLabel(part[1]).y}">${part[0]}</text>
-  </g>`;
- });
- svg+='</g></svg>';
- document.getElementById('canvas').innerHTML=svg;
-
- document.querySelectorAll('.region').forEach(el=>{
-  el.addEventListener('click',()=>{
-   const n=Number(el.dataset.num);
-   const i=Number(el.dataset.index);
-   if(n===selected){
-    if(!painted[i]){
-     painted[i]=true;
-     el.style.fill=colors[n].hex;
-     el.classList.add('done');
-     document.getElementById('num'+i).style.display='none';
-     updateProgress();
-    }
-   }else{
-    el.animate([
-     {opacity:1},{opacity:.35},{opacity:1}
-    ],{duration:250});
-   }
-  });
- });
-}
-
-function getLabel(shape){
- const match=shape.match(/(?:cx|x)="([\d.]+)".*?(?:cy|y)="([\d.]+)"/);
- if(match)return {x:match[1],y:match[2]};
- const m=shape.match(/points="([\d., ]+)"/);
- if(m){
-  const pts=m[1].trim().split(' ');
-  const xs=pts.map(p=>+p.split(',')[0]);
-  const ys=pts.map(p=>+p.split(',')[1]);
-  return {x:xs.reduce((a,b)=>a+b,0)/xs.length,y:ys.reduce((a,b)=>a+b,0)/ys.length};
+function paint(i){
+ let p=art[current].parts[i];
+ if(done[i])return;
+ if(p[0]!==selected){
+  let el=document.getElementById('p'+i);
+  el.animate([{opacity:1},{opacity:.35},{opacity:1}],{duration:250});
+  return;
  }
- return {x:200,y:200};
+ done[i]=true;
+ let el=document.getElementById('p'+i);
+ el.style.fill=palette[selected-1][2];
+ el.classList.add('painted');
+ document.getElementById('n'+i).style.display='none';
+ progress();
 }
-
-function updateProgress(){
- const total=drawings[current].parts.length;
- const count=Object.keys(painted).length;
- const percent=Math.round(count/total*100);
- document.getElementById('progressBar').style.width=percent+'%';
- document.getElementById('progressText').textContent=
- `${percent}% pintado (${count} de ${total} partes)`;
- if(count===total){
-  document.getElementById('message').style.display='block';
-  document.getElementById('message').scrollIntoView({behavior:'smooth',block:'center'});
- }else{
-  document.getElementById('message').style.display='none';
- }
+function progress(){
+ let total=art[current].parts.length;
+ let count=Object.keys(done).length;
+ let pct=Math.round(count/total*100);
+ document.getElementById('bar').style.width=pct+'%';
+ document.getElementById('percent').textContent=`${pct}% concluído — ${count} de ${total} partes`;
+ if(count===total)document.getElementById('finish').style.display='block';
 }
-
-function resetGame(){
- painted={};
- buildDrawing();
- updateProgress();
- document.getElementById('message').style.display='none';
+function reset(){
+ done={};
+ document.getElementById('finish').style.display='none';
+ renderPicture();progress();
 }
-
-function goBack(){
+function back(){
  document.getElementById('game').style.display='none';
- document.getElementById('selection').style.display='block';
- document.getElementById('message').style.display='none';
+ document.getElementById('home').style.display='block';
+ window.scrollTo({top:0,behavior:'smooth'});
 }
 </script>
 </body>
